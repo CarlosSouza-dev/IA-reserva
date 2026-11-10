@@ -1,0 +1,5 @@
+-r requirements.txt
+transformers>=4.45
+torch>=2.2
+accelerate>=0.30
+huggingface_hub>=0.24

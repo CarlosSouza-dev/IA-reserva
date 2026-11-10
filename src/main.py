@@ -12,6 +12,8 @@ from trechos import montar_grafo_tempo
 from desenhar_mapas import desenhar_mapa
 from tabela import processar_e_exibir_tabela
 from graficos import gerar_graficos
+from modelo_custo import obter_preditor
+from avaliacao_fase2 import executar_treino_e_avaliacao
 
 # CORREÇÃO: antes os caminhos eram "../outputs/..." relativos ao diretório onde
 # o usuário rodava o comando. Rodando da raiz do repositório, os arquivos
@@ -109,56 +111,75 @@ CENARIOS_FASE2 = [
 ]
 
 
-def executar_fase2():
+def executar_fase2(preditor=None):
+    """Compara três rotas por cenário, todas pelo mesmo A*:
+
+    * rota CURTA   : A* sobre a distância (decisão da Fase 1);
+    * rota do MODELO: A* sobre o tempo PREVISTO pelo modelo aprendido (decisão
+      do agente na Fase 2 — ele não conhece o simulador);
+    * rota ÓTIMA   : A* sobre o tempo do simulador ("verdade do mundo"), usada
+      só como gabarito para medir a qualidade da decisão do agente.
+
+    O tempo "real" de cada rota é o do simulador (tempo esperado, sem ruído).
+    """
+    preditor = preditor or obter_preditor()
     resultados = []
 
     for nome, origem, destino, hora, acidentes in CENARIOS_FASE2:
-        grafo_tempo = montar_grafo_tempo(MAPA_GRANDE, hora, acidentes)
-        escala = calibrar_escala_heuristica(grafo_tempo)
+        grafo_real = montar_grafo_tempo(MAPA_GRANDE, hora, acidentes)
+        grafo_modelo = montar_grafo_tempo(MAPA_GRANDE, hora, acidentes, prever=preditor)
+        escala = calibrar_escala_heuristica(grafo_modelo)
 
         # Critério da Fase 1: menor distância
         rota_curta, dist_curta, _, _ = a_estrela(origem, destino, MAPA_GRANDE)
-        # A mesma rota, avaliada com o critério da Fase 2 (tempo naquela hora)
-        tempo_curta = custo_do_caminho(rota_curta, grafo_tempo)
+        # Critério da Fase 2: menor tempo PREVISTO pelo modelo
+        rota_modelo, previsto, nos_astar, ordem = a_estrela(origem, destino, grafo_modelo, escala)
+        _, previsto_ucs, nos_ucs, _ = busca_custo_uniforme(origem, destino, grafo_modelo)
+        if abs(previsto_ucs - previsto) > 1e-6:
+            raise RuntimeError(f"A* não ótimo em '{nome}': {previsto} vs UCS {previsto_ucs}")
+        # Gabarito: a melhor rota possível segundo o simulador
+        rota_otima, tempo_otimo, _, _ = a_estrela(origem, destino, grafo_real)
 
-        # Critério da Fase 2: menor tempo previsto
-        rota_rapida, tempo_rapida, nos_astar, ordem = a_estrela(origem, destino, grafo_tempo, escala)
-        _, tempo_ucs, nos_ucs, _ = busca_custo_uniforme(origem, destino, grafo_tempo)
-
-        if abs(tempo_ucs - tempo_rapida) > 1e-6:
-            raise RuntimeError(f"A* não ótimo em '{nome}': {tempo_rapida} vs UCS {tempo_ucs}")
+        tempo_curta = custo_do_caminho(rota_curta, grafo_real)
+        tempo_modelo = custo_do_caminho(rota_modelo, grafo_real)
 
         resultados.append({
             "Cenário": nome,
             "Hora": f"{hora:02d}h",
             "Rota curta (km)": dist_curta,
-            "Tempo rota curta (min)": round(tempo_curta, 1),
-            "Tempo rota rápida (min)": round(tempo_rapida, 1),
-            "Economia (min)": round(max(0.0, tempo_curta - tempo_rapida), 1),
-            "Mesma rota?": "sim" if rota_curta == rota_rapida else "não",
+            "Tempo real rota curta (min)": round(tempo_curta, 1),
+            "Tempo previsto rota modelo (min)": round(previsto, 1),
+            "Tempo real rota modelo (min)": round(tempo_modelo, 1),
+            "Tempo ótimo (min)": round(tempo_otimo, 1),
+            "Economia vs curta (min)": round(tempo_curta - tempo_modelo, 1),
+            "Mudou a rota?": "sim" if rota_modelo != rota_curta else "não",
+            "Modelo achou a ótima?": "sim" if rota_modelo == rota_otima else "não",
             "Nós A*": nos_astar,
             "Nós UCS": nos_ucs,
             "Rota curta": rota_curta,
-            "Rota rápida": rota_rapida,
+            "Rota modelo": rota_modelo,
+            "Rota ótima": rota_otima,
         })
 
         desenhar_mapa(
-            mapa=grafo_tempo,
-            caminho=rota_rapida,
+            mapa=grafo_modelo,
+            caminho=rota_modelo,
             expandidos=ordem,
-            titulo=f"A* por tempo (min) - {nome}",
+            titulo=f"A* por tempo previsto ({preditor.nome}, min) - {nome}",
             salvar_em=SAIDA / "mapas",
             nome_arquivo=f"mapa_tempo_{slug(nome)}.png",
         )
 
     colunas = [
-        "Cenário", "Hora", "Rota curta (km)", "Tempo rota curta (min)",
-        "Tempo rota rápida (min)", "Economia (min)", "Mesma rota?", "Nós A*", "Nós UCS",
+        "Cenário", "Hora", "Rota curta (km)", "Tempo real rota curta (min)",
+        "Tempo previsto rota modelo (min)", "Tempo real rota modelo (min)",
+        "Tempo ótimo (min)", "Economia vs curta (min)", "Mudou a rota?",
+        "Modelo achou a ótima?", "Nós A*", "Nós UCS",
     ]
     return processar_e_exibir_tabela(
         resultados,
         pasta_saida=SAIDA / "csv",
-        titulo="RELATÓRIO DA FASE 2: ROTA MAIS CURTA x ROTA MAIS RÁPIDA",
+        titulo=f"RELATÓRIO DA FASE 2: ROTA CURTA x ROTA DO MODELO ({preditor.nome})",
         nome_csv="fase2_rota_curta_vs_rapida.csv",
         colunas_exibicao=colunas,
     )
@@ -166,7 +187,8 @@ def executar_fase2():
 
 def main():
     executar_fase1()
-    executar_fase2()
+    preditor, _ = executar_treino_e_avaliacao(SAIDA)  # Fase 2: treina e avalia o modelo
+    executar_fase2(preditor)
 
 
 if __name__ == "__main__":
