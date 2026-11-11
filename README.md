@@ -9,7 +9,7 @@ Cenário: entregas entre cidades de Kanto e Johto, modeladas como um grafo.
 |------|-----------------|--------|
 | 1 — Busca | distância | feito (UCS x A*, 3+ mapas) |
 | 2 — Aprendizado | tempo **previsto** por Floresta Aleatória a partir de lombadas, semáforos, acidente, horário e tipo de via | feito (modelo treinado, avaliado e integrado ao A*) |
-| 3 — Agente com LLM | tempo previsto | ferramentas e rotas com várias paradas prontas; falta o núcleo do LLM |
+| 3 — Agente com LLM | tempo previsto | agente Qwen2.5 orquestrando as ferramentas; falta a bateria de 15+ pedidos |
 
 ## Como rodar
 Use **Python 3.11 ou 3.12** (versões alfa como 3.15 ainda não têm pandas/scikit-learn).
@@ -23,6 +23,8 @@ python src/avaliacao_fase2.py             # só treina, compara e avalia os mode
 python src/mapas.py                       # valida os três mapas
 python src/trechos.py                     # gera outputs/csv/dataset_trechos.csv (treino da Fase 2)
 python src/ferramentas.py                 # exemplo de chamada da ferramenta buscar_rota (JSON)
+pip install -r requirements-llm.txt      # Fase 3 (no Colab já vem instalado)
+python src/agente_llm.py "Saio de Pallet às 18h e entrego em Celadon e Lavender"
 python -m unittest discover -s src -v     # testes
 ```
 
@@ -36,6 +38,9 @@ python -m unittest discover -s src -v     # testes
 - `ferramentas.py` — Fase 3: ferramentas do agente (`buscar_rota`, `estimar_tempo_trecho`, `listar_cidades`, `listar_vizinhas`), validação de nomes/horários, esquemas `FERRAMENTAS` e `executar_ferramenta`.
 - `desenhar_mapas.py`, `tabela.py`, `graficos.py` — saídas visuais e CSV.
 - `test_buscas.py` — otimalidade do A* em todos os pares, consistência da HDD, custos.
+- `agente_llm.py` — Fase 3: núcleo do agente (Qwen2.5-1.5B-Instruct via `transformers`), ciclo pensar → agir → observar → responder, leitura de `<tool_call>`, métricas de tokens/latência.
+- `../prompts/v1.md`, `../prompts/v2.md` — prompts versionados (v2: regras, contrato dos argumentos, fora de escopo, few-shot).
+- `test_agente_llm.py` — ciclo do agente com LLM simulado (roda no CI sem GPU).
 - `test_ferramentas.py` — planejamento, normalização de nomes/horários, erros das ferramentas e esquemas.
 - `test_modelo_custo.py` — pré-processamento, previsão positiva, lote x individual, A* == UCS no grafo previsto pelo modelo.
 
