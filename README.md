@@ -16,6 +16,10 @@ Cenário: entregas entre cidades de Kanto e Johto, modeladas como um grafo.
 [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CarlosSouza-dev/IA-reserva/blob/main/notebooks/Projeto_IA_Kanto_Johto.ipynb)
 No Colab: GPU T4 e *Executar tudo*. Se o repositório for privado, cadastre um token do GitHub (somente leitura) nos *Secrets* com o nome `GITHUB_TOKEN`.
 
+## Relatório e autores
+- [`docs/Relatorio_Projeto_IA.pdf`](docs/Relatorio_Projeto_IA.pdf) (6 páginas), gerado de [`docs/relatorio.md`](docs/relatorio.md) com `python docs/gerar_pdf.py` (requer `pip install markdown` e Chrome ou Edge).
+- [`AUTORES`](AUTORES): fase de cada integrante.
+
 ## Como rodar
 Use **Python 3.11 ou 3.12** (versões alfa como 3.15 ainda não têm pandas/scikit-learn).
 O VS Code já aponta para `.venv` (ver `.vscode/settings.json`); crie-o uma vez:
