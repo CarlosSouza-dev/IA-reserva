@@ -16,7 +16,7 @@ Use **Python 3.11 ou 3.12** (versões alfa como 3.15 ainda não têm pandas/scik
 O VS Code já aponta para `.venv` (ver `.vscode/settings.json`); crie-o uma vez:
 ```bash
 py -3.11 -m venv .venv
-.venv\Scriptsctivate          # Windows (no Linux/Mac: source .venv/bin/activate)
+.venv\Scripts\activate          # Windows (no Linux/Mac: source .venv/bin/activate)
 pip install -r requirements.txt
 python src/main.py                        # Fase 1 + treino/avaliação do modelo + experimento da Fase 2 -> outputs/
 python src/avaliacao_fase2.py             # só treina, compara e avalia os modelos (outputs/fase2_resumo.md)
