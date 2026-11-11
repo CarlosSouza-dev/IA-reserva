@@ -9,15 +9,20 @@ Cenário: entregas entre cidades de Kanto e Johto, modeladas como um grafo.
 |------|-----------------|--------|
 | 1 — Busca | distância | feito (UCS x A*, 3+ mapas) |
 | 2 — Aprendizado | tempo **previsto** por Floresta Aleatória a partir de lombadas, semáforos, acidente, horário e tipo de via | feito (modelo treinado, avaliado e integrado ao A*) |
-| 3 — Agente com LLM | tempo previsto | a fazer |
+| 3 — Agente com LLM | tempo previsto | ferramentas e rotas com várias paradas prontas; falta o núcleo do LLM |
 
 ## Como rodar
+Use **Python 3.11 ou 3.12** (versões alfa como 3.15 ainda não têm pandas/scikit-learn).
+O VS Code já aponta para `.venv` (ver `.vscode/settings.json`); crie-o uma vez:
 ```bash
+py -3.11 -m venv .venv
+.venv\Scripts\activate          # Windows (no Linux/Mac: source .venv/bin/activate)
 pip install -r requirements.txt
 python src/main.py                        # Fase 1 + treino/avaliação do modelo + experimento da Fase 2 -> outputs/
 python src/avaliacao_fase2.py             # só treina, compara e avalia os modelos (outputs/fase2_resumo.md)
 python src/mapas.py                       # valida os três mapas
 python src/trechos.py                     # gera outputs/csv/dataset_trechos.csv (treino da Fase 2)
+python src/ferramentas.py                 # exemplo de chamada da ferramenta buscar_rota (JSON)
 python -m unittest discover -s src -v     # testes
 ```
 
@@ -27,8 +32,11 @@ python -m unittest discover -s src -v     # testes
 - `trechos.py` — características de cada trecho, horário → trânsito, `tempo_trecho`, `montar_grafo_tempo(..., prever=modelo)`, dataset sintético.
 - `modelo_custo.py` — Fase 2: dataset com faltantes, pré-processamento (Pipeline), modelos candidatos, validação cruzada (estradas conhecidas x novas) e `PreditorTempo`, usado como custo do A*.
 - `avaliacao_fase2.py` — comparação dos modelos, análise de erros por segmento, gráficos e resumo `outputs/fase2_resumo.md`.
+- `planejamento.py` — várias paradas (ordem exata até 8, vizinho mais próximo + 2-opt acima), cidades a evitar, acidentes e bloqueios.
+- `ferramentas.py` — Fase 3: ferramentas do agente (`buscar_rota`, `estimar_tempo_trecho`, `listar_cidades`, `listar_vizinhas`), validação de nomes/horários, esquemas `FERRAMENTAS` e `executar_ferramenta`.
 - `desenhar_mapas.py`, `tabela.py`, `graficos.py` — saídas visuais e CSV.
 - `test_buscas.py` — otimalidade do A* em todos os pares, consistência da HDD, custos.
+- `test_ferramentas.py` — planejamento, normalização de nomes/horários, erros das ferramentas e esquemas.
 - `test_modelo_custo.py` — pré-processamento, previsão positiva, lote x individual, A* == UCS no grafo previsto pelo modelo.
 
 ## Decisões de modelagem
