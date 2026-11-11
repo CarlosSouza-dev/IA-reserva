@@ -11,7 +11,7 @@ import unittest
 import ferramentas as F
 from agente_llm import (
     Agente, carregar_prompt, explicar_resultado, extrair_json, ler_chamadas,
-    remover_chamadas, resumir_para_llm,
+    remover_chamadas, resumir_para_llm, verificar_fidelidade,
 )
 from trechos import tempo_trecho
 
@@ -64,7 +64,7 @@ class TestSaidaEstruturada(unittest.TestCase):
 
 class TestPrompts(unittest.TestCase):
     def test_versoes_existem_sem_comentarios(self):
-        for versao in ("v1", "v2"):
+        for versao in ("v1", "v2", "v3"):
             texto = carregar_prompt(versao)
             self.assertIn("Kanto", texto)
             self.assertNotIn("<!--", texto)
@@ -86,7 +86,7 @@ class TestCicloDoAgente(unittest.TestCase):
     def test_pedido_com_ferramenta_e_resposta_final(self):
         llm = LLMRoteirizado([
             tool_call("buscar_rota", origem="Pewter", destino="Fuchsia", hora="18h"),
-            "Saia de Pewter City e siga até Fuchsia City; tempo previsto de 600 min.",
+            "Saia de Pewter City e siga até Fuchsia City.",
         ])
         r = Agente(llm).responder("Rota de Pewter até Fuchsia às 18h")
         self.assertEqual(r["passos"], 2)
@@ -142,6 +142,65 @@ class TestCicloDoAgente(unittest.TestCase):
         self.assertEqual(llm.recebidas[0][0]["content"], carregar_prompt("v1"))
 
 
+class TestFidelidade(unittest.TestCase):
+    """Casos reais do teste com o Qwen2.5-1.5B (prompt v2), reproduzidos aqui."""
+
+    @classmethod
+    def setUpClass(cls):
+        anterior = F._PREDITOR
+        F.definir_preditor(tempo_trecho)
+        try:
+            cls.multi = F.buscar_rota("Pallet", paradas=["Celadon", "Lavender"], hora="18h")
+            cls.simples = F.buscar_rota("Pewter", "Fuchsia", hora="8")
+        finally:
+            F.definir_preditor(anterior)
+
+    def test_explicacao_de_reserva_e_fiel(self):
+        for r in (self.multi, self.simples):
+            self.assertEqual(verificar_fidelidade(explicar_resultado(r), [r]), [])
+
+    def test_rota_mais_curta_inventada(self):
+        resposta = ("Em comparação, a rota mais curta seria:\n"
+                    "1. **Pallet Town** -> **Celadon City**\n"
+                    "2. **Celadon City** -> **Lavender Town**")
+        problemas = verificar_fidelidade(resposta, [self.multi])
+        self.assertIn("trecho inexistente: Pallet Town → Celadon City", problemas)
+
+    def test_tempo_por_perna_inventado(self):
+        resposta = "- **Pewter City** -> **Mt. Moon**: 1 hora e 15 minutos, totalizando 9999 minutos"
+        self.assertTrue(any("9999" in p for p in verificar_fidelidade(resposta, [self.simples])))
+
+    def test_local_que_nao_esta_no_resultado(self):
+        problemas = verificar_fidelidade("Passe por Goldenrod City.", [self.simples])
+        self.assertIn("local 'Goldenrod City' não está no resultado", problemas)
+
+    def test_conversao_horas_e_arredondamento_aceitos(self):
+        t = self.simples["tempo_previsto_min"]
+        h, m = divmod(round(t), 60)
+        resposta = f"Tempo previsto: {t:.0f} min ({h} horas e {m} minutos)."
+        self.assertEqual(verificar_fidelidade(resposta, [self.simples]), [])
+
+    def test_rota_sem_ferramenta(self):
+        self.assertEqual(verificar_fidelidade("Desculpe, eu só planejo rotas de entrega em Kanto e Johto.", []), [])
+        problemas = verificar_fidelidade("Vá de Pallet Town -> Viridian City.", [], "rota de pallet")
+        self.assertIn("rota citada sem consultar a ferramenta", problemas)
+
+    def test_agente_troca_resposta_alucinada_pela_reserva(self):
+        anterior = F._PREDITOR
+        F.definir_preditor(tempo_trecho)
+        try:
+            alucinada = "A rota é Pewter City -> Fuchsia City em 12 minutos."
+            llm = LLMRoteirizado([tool_call("buscar_rota", origem="Pewter", destino="Fuchsia", hora="8"),
+                                  alucinada])
+            r = Agente(llm).responder("Pewter até Fuchsia às 8h")
+        finally:
+            F.definir_preditor(anterior)
+        self.assertTrue(r["usou_reserva"])
+        self.assertEqual(r["resposta_llm"], alucinada)
+        self.assertTrue(r["problemas_fidelidade"])
+        self.assertIn("Tempo previsto", r["resposta"])
+
+
 class TestExplicacao(unittest.TestCase):
     def test_resumo_e_explicacao(self):
         anterior = F._PREDITOR
@@ -151,7 +210,8 @@ class TestExplicacao(unittest.TestCase):
         finally:
             F.definir_preditor(anterior)
         resumo = resumir_para_llm(r)
-        self.assertNotIn("caminho", resumo["pernas"][0])
+        self.assertNotIn("pernas", resumo)  # 1 perna só repetiria o total
+        self.assertEqual(resumo["rota_mais_curta"]["rota"], r["rota_mais_curta"]["rota"])
         texto = explicar_resultado(r)
         self.assertIn(f"{r['tempo_previsto_min']:.0f} min", texto)
         self.assertIn("18h00", texto)

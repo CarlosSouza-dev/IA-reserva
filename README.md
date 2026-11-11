@@ -39,7 +39,7 @@ python -m unittest discover -s src -v     # testes
 - `desenhar_mapas.py`, `tabela.py`, `graficos.py` — saídas visuais e CSV.
 - `test_buscas.py` — otimalidade do A* em todos os pares, consistência da HDD, custos.
 - `agente_llm.py` — Fase 3: núcleo do agente (Qwen2.5-1.5B-Instruct via `transformers`), ciclo pensar → agir → observar → responder, leitura de `<tool_call>`, métricas de tokens/latência.
-- `../prompts/v1.md`, `../prompts/v2.md` — prompts versionados (v2: regras, contrato dos argumentos, fora de escopo, few-shot).
+- `../prompts/v1.md`, `v2.md`, `v3.md` — prompts versionados (v2: regras, contrato dos argumentos, fora de escopo, few-shot; v3, padrão: formato fixo de resposta, criado após o Qwen alucinar com o v2). A resposta do LLM ainda passa por `verificar_fidelidade` (números, locais e trechos precisam vir das ferramentas).
 - `test_agente_llm.py` — ciclo do agente com LLM simulado (roda no CI sem GPU).
 - `test_ferramentas.py` — planejamento, normalização de nomes/horários, erros das ferramentas e esquemas.
 - `test_modelo_custo.py` — pré-processamento, previsão positiva, lote x individual, A* == UCS no grafo previsto pelo modelo.

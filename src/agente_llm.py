@@ -34,7 +34,7 @@ from ferramentas import FERRAMENTAS, executar_ferramenta
 RAIZ = Path(__file__).resolve().parent.parent
 PASTA_PROMPTS = RAIZ / "prompts"
 MODELO_PADRAO = "Qwen/Qwen2.5-1.5B-Instruct"
-PROMPT_PADRAO = "v2"
+PROMPT_PADRAO = "v3"
 MAX_PASSOS = 3          # pensar/agir/observar no máximo 3 vezes por pedido
 MAX_TOKENS_SAIDA = 320  # resposta final curta (o prompt pede até 5 frases)
 
@@ -164,11 +164,13 @@ def resumir_para_llm(resultado):
     resumo = {k: resultado[k] for k in (
         "ok", "origem", "ordem_entregas", "rota", "tempo_previsto_min", "distancia_km",
         "hora_saida", "economia_vs_mais_curta_min", "produto", "avisos") if k in resultado}
+    # A rota mais curta vai COMPLETA: sem ela, o Qwen inventava uma no teste.
     resumo["rota_mais_curta"] = {k: resultado["rota_mais_curta"][k]
-                                 for k in ("distancia_km", "tempo_previsto_min")}
-    resumo["pernas"] = [{"de": p["de"], "para": p["para"],
-                         "tempo_previsto_min": p["tempo_previsto_min"]}
-                        for p in resultado["pernas"]]
+                                 for k in ("rota", "distancia_km", "tempo_previsto_min")}
+    if len(resultado["pernas"]) > 1:  # com 1 perna, repetiria o tempo total
+        resumo["pernas"] = [{"de": p["de"], "para": p["para"],
+                             "tempo_previsto_min": p["tempo_previsto_min"]}
+                            for p in resultado["pernas"]]
     restricoes = {k: v for k, v in resultado.get("restricoes", {}).items() if v}
     if restricoes:
         resumo["restricoes"] = restricoes
@@ -194,7 +196,8 @@ def explicar_resultado(resultado):
     if resultado.get("avisos"):
         partes.append("Obs.: " + "; ".join(resultado["avisos"]) + ".")
     if len(resultado["ordem_entregas"]) > 1:
-        partes.append("Ordem das entregas: " + " → ".join(resultado["ordem_entregas"]) + ".")
+        # vírgulas, não setas: setas ficam reservadas para estradas reais (fidelidade)
+        partes.append("Ordem das entregas: " + ", depois ".join(resultado["ordem_entregas"]) + ".")
     partes.append(f"Rota saindo às {_hora_texto(resultado['hora_saida'])}: "
                   + " → ".join(resultado["rota"]) + ".")
     partes.append(f"Tempo previsto: {resultado['tempo_previsto_min']:.0f} min "
@@ -210,7 +213,95 @@ def explicar_resultado(resultado):
 
 
 # =====================================================================
-# 5. O AGENTE
+# 5. CHECAGEM DE FIDELIDADE (barreira contra alucinação)
+#
+# No teste com o Qwen2.5-1.5B, a escolha da ferramenta foi correta, mas a
+# resposta final às vezes inventava trechos, tempos por perna e uma "rota mais
+# curta" inexistente. Esta checagem compara a resposta com o que as
+# ferramentas devolveram:
+#   * todo número citado precisa vir do resultado ou do pedido (com tolerância
+#     de arredondamento e conversão de minutos para "Xh Ymin");
+#   * todo local do mapa citado precisa aparecer no resultado ou no pedido;
+#   * toda sequência "A → B" precisa ser uma estrada que existe no mapa.
+# Se falhar, o agente descarta o texto do LLM e usa explicar_resultado().
+# =====================================================================
+from ferramentas import LOCAIS, _chave  # noqa: E402
+from mapas import MAPA_GRANDE  # noqa: E402
+
+_NUMERO = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)?")
+_SETA = re.compile(r"\s*(?:→|->|=>|⇒)\s*")
+_FORMAS = sorted(
+    {(" ".join(_chave(local)), local) for local in LOCAIS}
+    | {(" ".join(p for p in _chave(local) if p not in {"city", "town"}), local) for local in LOCAIS},
+    key=lambda par: -len(par[0]))
+
+
+def _locais_no_texto(texto):
+    """Locais do mapa citados no texto, na ordem em que aparecem."""
+    normal = " " + " ".join(_chave(texto)) + " "
+    achados = []
+    for forma, local in _FORMAS:
+        for m in re.finditer(rf"(?<= ){re.escape(forma)}(?= )", normal):
+            achados.append((m.start(), local))
+            normal = normal[:m.start()] + "#" * len(forma) + normal[m.end():]
+    return [local for _, local in sorted(achados)]
+
+
+def _numeros_de(valor, saida):
+    if isinstance(valor, bool):
+        return
+    if isinstance(valor, (int, float)):
+        saida.add(float(valor))
+        if valor >= 60:
+            horas, minutos = divmod(round(valor), 60)
+            saida.update({float(horas), float(minutos), round(valor / 60, 1)})
+    elif isinstance(valor, dict):
+        for v in valor.values():
+            _numeros_de(v, saida)
+    elif isinstance(valor, (list, tuple)):
+        for v in valor:
+            _numeros_de(v, saida)
+    elif isinstance(valor, str):
+        for n in _NUMERO.findall(valor):
+            _numeros_de(float(n.replace(",", ".")), saida)
+
+
+def verificar_fidelidade(resposta, resultados, pedido=""):
+    """Lista de problemas da resposta em relação aos resultados (vazia = fiel)."""
+    permitidos = set()
+    _numeros_de(list(resultados), permitidos)
+    _numeros_de(pedido, permitidos)
+    locais_permitidos = set(_locais_no_texto(json.dumps(list(resultados), ensure_ascii=False)))
+    locais_permitidos |= set(_locais_no_texto(pedido))
+    pequenos = len(max((r.get("rota", []) for r in resultados), key=len, default=[])) + 1
+
+    problemas = []
+    for bruto in _NUMERO.findall(resposta):
+        n = float(bruto.replace(",", "."))
+        if n <= pequenos and n == int(n):
+            continue  # numeração de lista, "2 paradas"...
+        if not any(abs(n - p) <= (1.0 if p >= 10 else 0.05) for p in permitidos):
+            problemas.append(f"número {bruto} não veio das ferramentas")
+    for local in _locais_no_texto(resposta):
+        if local not in locais_permitidos:
+            problemas.append(f"local '{local}' não está no resultado")
+    if not resultados and _SETA.search(resposta) and _locais_no_texto(resposta):
+        problemas.append("rota citada sem consultar a ferramenta")
+    for linha in resposta.splitlines():
+        partes = _SETA.split(linha)
+        for esquerda, direita in zip(partes, partes[1:]):
+            a, b = _locais_no_texto(esquerda), _locais_no_texto(direita)
+            if a and b and b[0] not in MAPA_GRANDE.get(a[-1], {}):
+                problemas.append(f"trecho inexistente: {a[-1]} → {b[0]}")
+    return list(dict.fromkeys(problemas))
+
+
+RESPOSTA_SEM_DADOS = ("Não consegui calcular a rota com segurança. Informe a origem, "
+                      "os destinos e o horário de saída.")
+
+
+# =====================================================================
+# 6. O AGENTE
 # =====================================================================
 class Agente:
     def __init__(self, llm, versao_prompt=PROMPT_PADRAO, max_passos=MAX_PASSOS,
@@ -255,17 +346,22 @@ class Agente:
                                   "content": json.dumps(resumir_para_llm(resultado),
                                                         ensure_ascii=False)})
 
+        # Barreira contra alucinação: a resposta do LLM só passa se for fiel
+        resposta_llm = resposta
+        resultados = [c["resultado"] for c in chamadas]
+        problemas = verificar_fidelidade(resposta, resultados, pedido) if resposta else []
         usou_reserva = False
-        if not resposta and chamadas:
-            resposta, usou_reserva = explicar_resultado(chamadas[-1]["resultado"]), True
-        if not resposta:
-            resposta = "Não consegui entender o pedido. Informe a origem, os destinos e o horário."
+        if not resposta or problemas:
             usou_reserva = True
+            resposta = (explicar_resultado(resultados[-1]) if resultados
+                        else RESPOSTA_SEM_DADOS)
 
         uso = getattr(self.llm, "uso", [])[uso_antes:]
         return {
             "pedido": pedido,
             "resposta": resposta,
+            "resposta_llm": resposta_llm,
+            "problemas_fidelidade": problemas,
             "chamadas": chamadas,
             "passos": passos,
             "usou_reserva": usou_reserva,
