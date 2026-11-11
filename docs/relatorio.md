@@ -222,9 +222,9 @@ Todos os integrantes estudaram as três fases para a arguição cruzada.
 
 **Declaração de uso de ferramentas de IA generativa.** O desenvolvimento contou com ferramentas de IA generativa, como permite a Seção 9 do enunciado:
 - o assistente de programação **Claude Code** (Anthropic) apoiou:
-    - a implementação e revisão do código das Fases 2 e 3 (modelo de custo, avaliação, ferramentas, núcleo do agente e checagem de fidelidade);
+    - a implementação parcial e revisão do código das Fases 2 e 3 (modelo de custo, avaliação, ferramentas, núcleo do agente e checagem de fidelidade);
     - a escrita dos testes automatizados e do notebook;
-    - a organização das tarefas no GitHub e a redação deste relatório;
+    - a organização das tarefas no GitHub;
 - o **Gemini** foi usado para resumir o conteúdo das Aulas 2 e 3 durante o estudo.
 
 O LLM que faz parte do agente (Qwen2.5-1.5B-Instruct) é um componente do sistema, não uma ferramenta de desenvolvimento. Os resultados numéricos deste relatório vêm da execução do código, registrada em `outputs/`. O grupo revisou o conteúdo e responde por ele na arguição.
