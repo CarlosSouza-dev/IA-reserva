@@ -13,6 +13,10 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+      - name: Verificar que nenhum segredo foi versionado
+        run: |
+          if git ls-files | grep -E '(^|/)\.env$'; then echo "::error::.env commitado"; exit 1; fi
+          if git grep -nE 'hf_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9_-]{20,}|AIza[0-9A-Za-z_-]{35}'; then echo "::error::possível chave de API no código"; exit 1; fi
       - name: Instalar dependências
         run: pip install -r requirements.txt
       - name: Rodar testes

@@ -22,3 +22,4 @@ env/
 
 # Modelos treinados (regerados por "python src/modelo_custo.py" ou pelo main)
 outputs/modelos/*.joblib
+!.env.example
