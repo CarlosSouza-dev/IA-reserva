@@ -1,7 +1,7 @@
 # Teste inicial do agente com o Qwen2.5-1.5B-Instruct (CPU, fp32, 10/11/2026)
 
 Mesmos 4 pedidos com os prompts v3 (padrão) e v2, já com a checagem de fidelidade ativa.
-Rodado localmente em CPU (Intel, sem CUDA), por isso ~40-75 s por pedido; no Colab com GPU T4 o
+Rodado localmente em CPU (PyTorch sem CUDA), por isso ~40-75 s por pedido; no Colab com GPU T4 o
 esperado é bem menor. Primeira rodada (v2, sem checagem): as 3 respostas com rota inventaram
 dados (rota mais curta inexistente "Pallet → Celadon → Lavender", tempos de "1 hora e 15 minutos"
 por perna, "a rota inclui Violet" quando era para evitar), o que motivou o prompt v3 e
