@@ -247,17 +247,46 @@ def escrever_relatorio(df, rotulo, caminho):
 # =====================================================================
 # 4. EXECUÇÃO
 # =====================================================================
-def executar_bateria(agente, casos=None, mostrar=True):
+def _tipos(df):
+    """CSV relido volta com booleanos como texto e vazios como NaN."""
+    def booleano(v):
+        return v in (True, "True")
+
+    def opcional(v):
+        return None if v is None or (isinstance(v, float) and math.isnan(v)) else booleano(v)
+
+    for coluna in ("rota_ok", "resposta_fiel", "resultado_ok"):
+        df[coluna] = df[coluna].map(opcional).astype(object)
+    for coluna in ("ferramenta_ok", "argumentos_ok", "acerto", "llm_descartado", "usou_reserva"):
+        df[coluna] = df[coluna].map(booleano)
+    for coluna in ("diferencas_argumentos", "argumentos_obtidos", "problemas_fidelidade",
+                   "resposta_llm", "resposta"):
+        df[coluna] = df[coluna].fillna("").astype(str)
+    return df
+
+
+def executar_bateria(agente, casos=None, mostrar=True, parcial=None):
+    """Roda os casos. Se `parcial` (caminho de CSV) for dado, grava o progresso
+    a cada caso e pula os que já estiverem nele: no CPU a bateria leva ~20 min
+    e uma queda no meio não perde o que já rodou."""
     casos = casos or carregar_casos()
     linhas = []
+    if parcial and Path(parcial).exists():
+        linhas = pd.read_csv(parcial).to_dict(orient="records")
+    feitos = {int(linha["id"]) for linha in linhas}
     for caso in casos:
+        if caso["id"] in feitos:
+            continue
         r = agente.responder(caso["pedido"])
         linha = avaliar_caso(caso, r)
         linhas.append(linha)
+        if parcial:
+            Path(parcial).parent.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame(linhas).to_csv(parcial, index=False)
         if mostrar:
             print(f"{'certo ' if linha['acerto'] else 'ERRADO'} | #{caso['id']:>2} {caso['categoria']:<18} "
                   f"| {linha['segundos']:>5.1f}s | {caso['pedido']}", flush=True)
-    return pd.DataFrame(linhas)
+    return _tipos(pd.DataFrame(linhas).sort_values("id").reset_index(drop=True))
 
 
 def salvar(df, rotulo, pasta=SAIDA):
@@ -284,8 +313,10 @@ if __name__ == "__main__":
     casos = carregar_casos()[:args.limite]
     agente = criar_agente(args.prompt, args.modelo)
     rotulo = f"{args.modelo.split('/')[-1]} {args.prompt}"
-    df = executar_bateria(agente, casos)
+    parcial = SAIDA / ("parcial_" + rotulo.lower().replace(" ", "_") + ".csv")
+    df = executar_bateria(agente, casos, parcial=parcial)
     caminho, geral = salvar(df, rotulo)
+    parcial.unlink(missing_ok=True)
     print()
     for k, v in geral.items():
         print(f"{k:>28}: {v}")

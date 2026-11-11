@@ -215,6 +215,18 @@ class TestExplicacao(unittest.TestCase):
         texto = explicar_resultado(r)
         self.assertIn(f"{r['tempo_previsto_min']:.0f} min", texto)
         self.assertIn("18h00", texto)
+        anterior = F._PREDITOR
+        F.definir_preditor(tempo_trecho)
+        try:
+            trecho = F.estimar_tempo_trecho("Ice Path", "Mahogany", 18, True)
+        finally:
+            F.definir_preditor(anterior)
+        texto_trecho = explicar_resultado(trecho)
+        self.assertNotIn("{", texto_trecho)  # nada de JSON cru para o usuário
+        self.assertIn(f"{trecho['tempo_previsto_min']:.0f} min", texto_trecho)
+        self.assertEqual(verificar_fidelidade(texto_trecho, [trecho]), [])
+        vizinhas = explicar_resultado(F.listar_vizinhas("Saffron"))
+        self.assertIn("Celadon City", vizinhas)
         erro = explicar_resultado({"ok": False, "erro": "X não existe", "sugestoes": ["Y"]})
         self.assertIn("X não existe", erro)
         self.assertIn("Y", erro)
