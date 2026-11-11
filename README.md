@@ -11,6 +11,11 @@ Cenário: entregas entre cidades de Kanto e Johto, modeladas como um grafo.
 | 2 — Aprendizado | tempo **previsto** por Floresta Aleatória a partir de lombadas, semáforos, acidente, horário e tipo de via | feito (modelo treinado, avaliado e integrado ao A*) |
 | 3 — Agente com LLM | tempo previsto | agente Qwen2.5 orquestrando as ferramentas, avaliado em 20 pedidos de teste |
 
+## Notebook (entrega)
+[`notebooks/Projeto_IA_Kanto_Johto.ipynb`](notebooks/Projeto_IA_Kanto_Johto.ipynb) roda as três fases, a avaliação e a conversa com o agente.
+[![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/CarlosSouza-dev/IA-reserva/blob/main/notebooks/Projeto_IA_Kanto_Johto.ipynb)
+No Colab: GPU T4 e *Executar tudo*. Se o repositório for privado, cadastre um token do GitHub (somente leitura) nos *Secrets* com o nome `GITHUB_TOKEN`.
+
 ## Como rodar
 Use **Python 3.11 ou 3.12** (versões alfa como 3.15 ainda não têm pandas/scikit-learn).
 O VS Code já aponta para `.venv` (ver `.vscode/settings.json`); crie-o uma vez:
