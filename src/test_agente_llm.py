@@ -64,7 +64,7 @@ class TestSaidaEstruturada(unittest.TestCase):
 
 class TestPrompts(unittest.TestCase):
     def test_versoes_existem_sem_comentarios(self):
-        for versao in ("v1", "v2", "v3"):
+        for versao in ("v1", "v2", "v3", "v4"):
             texto = carregar_prompt(versao)
             self.assertIn("Kanto", texto)
             self.assertNotIn("<!--", texto)
