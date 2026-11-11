@@ -12,7 +12,11 @@ Cenário: entregas entre cidades de Kanto e Johto, modeladas como um grafo.
 | 3 — Agente com LLM | tempo previsto | ferramentas e rotas com várias paradas prontas; falta o núcleo do LLM |
 
 ## Como rodar
+Use **Python 3.11 ou 3.12** (versões alfa como 3.15 ainda não têm pandas/scikit-learn).
+O VS Code já aponta para `.venv` (ver `.vscode/settings.json`); crie-o uma vez:
 ```bash
+py -3.11 -m venv .venv
+.venv\Scriptsctivate          # Windows (no Linux/Mac: source .venv/bin/activate)
 pip install -r requirements.txt
 python src/main.py                        # Fase 1 + treino/avaliação do modelo + experimento da Fase 2 -> outputs/
 python src/avaliacao_fase2.py             # só treina, compara e avalia os modelos (outputs/fase2_resumo.md)
