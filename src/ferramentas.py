@@ -22,7 +22,7 @@ import difflib
 import json
 import re
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from mapas import MAPA_GRANDE, PONTOS_VERDES
 from planejamento import (
@@ -30,6 +30,10 @@ from planejamento import (
     planejar_entregas,
 )
 from trechos import TRECHOS, chave_trecho
+
+# Horário de Brasília (sem horário de verão desde 2019). O Colab roda em UTC,
+# então datetime.now() sem fuso daria "agora" 3 horas adiantado.
+FUSO_BRASILIA = timezone(timedelta(hours=-3))
 
 LOCAIS = sorted(MAPA_GRANDE)
 CIDADES = [c for c in LOCAIS if c not in PONTOS_VERDES]
@@ -112,7 +116,7 @@ def normalizar_cidade(nome, avisos=None):
 def interpretar_hora(valor, agora=None):
     """'agora', 18, 18.5, '18h', '18h30', '18:30', '6pm' -> hora decimal [0, 24)."""
     if valor is None or (isinstance(valor, str) and _chave(valor) in (["agora"], ["now"], [])):
-        agora = agora or datetime.now()
+        agora = agora or datetime.now(FUSO_BRASILIA)
         return round(agora.hour + agora.minute / 60, 2)
     if isinstance(valor, bool):
         raise ArgumentoInvalido(f"Horário inválido: {valor!r}")
