@@ -9,7 +9,7 @@ Cenário: entregas entre cidades de Kanto e Johto, modeladas como um grafo.
 |------|-----------------|--------|
 | 1 — Busca | distância | feito (UCS x A*, 3+ mapas) |
 | 2 — Aprendizado | tempo **previsto** por Floresta Aleatória a partir de lombadas, semáforos, acidente, horário e tipo de via | feito (modelo treinado, avaliado e integrado ao A*) |
-| 3 — Agente com LLM | tempo previsto | agente Qwen2.5 orquestrando as ferramentas; falta a bateria de 15+ pedidos |
+| 3 — Agente com LLM | tempo previsto | agente Qwen2.5 orquestrando as ferramentas, avaliado em 20 pedidos de teste |
 
 ## Como rodar
 Use **Python 3.11 ou 3.12** (versões alfa como 3.15 ainda não têm pandas/scikit-learn).
@@ -25,6 +25,7 @@ python src/trechos.py                     # gera outputs/csv/dataset_trechos.csv
 python src/ferramentas.py                 # exemplo de chamada da ferramenta buscar_rota (JSON)
 pip install -r requirements-llm.txt      # Fase 3 (no Colab já vem instalado)
 python src/agente_llm.py "Saio de Pallet às 18h e entrego em Celadon e Lavender"
+python src/avaliacao_agente.py --prompt v3  # bateria de testes/pedidos_teste.json -> outputs/fase3/
 python -m unittest discover -s src -v     # testes
 ```
 
@@ -40,7 +41,9 @@ python -m unittest discover -s src -v     # testes
 - `test_buscas.py` — otimalidade do A* em todos os pares, consistência da HDD, custos.
 - `agente_llm.py` — Fase 3: núcleo do agente (Qwen2.5-1.5B-Instruct via `transformers`), ciclo pensar → agir → observar → responder, leitura de `<tool_call>`, métricas de tokens/latência.
 - `../prompts/v1.md`, `v2.md`, `v3.md` — prompts versionados (v2: regras, contrato dos argumentos, fora de escopo, few-shot; v3, padrão: formato fixo de resposta, criado após o Qwen alucinar com o v2). A resposta do LLM ainda passa por `verificar_fidelidade` (números, locais e trechos precisam vir das ferramentas).
+- `avaliacao_agente.py` — bateria de 20 pedidos (`testes/pedidos_teste.json`): ferramenta, argumentos, rota e fidelidade por caso, acerto por categoria, matriz de confusão e precisão/revocação (Laboratório 10).
 - `test_agente_llm.py` — ciclo do agente com LLM simulado (roda no CI sem GPU).
+- `test_avaliacao_agente.py` — bateria com LLM oráculo (100%) e LLM ruim (reprovado).
 - `test_ferramentas.py` — planejamento, normalização de nomes/horários, erros das ferramentas e esquemas.
 - `test_modelo_custo.py` — pré-processamento, previsão positiva, lote x individual, A* == UCS no grafo previsto pelo modelo.
 
