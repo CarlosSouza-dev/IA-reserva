@@ -20,7 +20,7 @@
       "MAE estradas novas desvio": 4.553,
       "RMSE estradas novas (min)": 32.442,
       "R² estradas novas": 0.6917,
-      "Tempo de treino (s)": 0.192
+      "Tempo de treino (s)": 0.14
     },
     {
       "Modelo": "Regressão Ridge",
@@ -32,7 +32,7 @@
       "MAE estradas novas desvio": 2.232,
       "RMSE estradas novas (min)": 29.855,
       "R² estradas novas": 0.7711,
-      "Tempo de treino (s)": 0.007
+      "Tempo de treino (s)": 0.006
     },
     {
       "Modelo": "Árvore de Decisão",
@@ -44,7 +44,7 @@
       "MAE estradas novas desvio": 5.699,
       "RMSE estradas novas (min)": 38.004,
       "R² estradas novas": 0.6355,
-      "Tempo de treino (s)": 0.014
+      "Tempo de treino (s)": 0.007
     },
     {
       "Modelo": "k-NN (k=10)",
@@ -56,7 +56,7 @@
       "MAE estradas novas desvio": 4.058,
       "RMSE estradas novas (min)": 43.955,
       "R² estradas novas": 0.5619,
-      "Tempo de treino (s)": 0.012
+      "Tempo de treino (s)": 0.006
     },
     {
       "Modelo": "Baseline (média)",
@@ -68,7 +68,7 @@
       "MAE estradas novas desvio": 15.17,
       "RMSE estradas novas (min)": 77.041,
       "R² estradas novas": -0.0621,
-      "Tempo de treino (s)": 0.01
+      "Tempo de treino (s)": 0.005
     }
   ]
 }
