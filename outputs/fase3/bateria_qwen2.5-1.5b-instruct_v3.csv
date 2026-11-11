@@ -1,0 +1,127 @@
+id,categoria,pedido,ferramenta_esperada,ferramenta_escolhida,ferramenta_ok,argumentos_ok,rota_ok,resposta_fiel,acerto,diferencas_argumentos,argumentos_obtidos,resultado_ok,llm_descartado,problemas_fidelidade,usou_reserva,resposta_llm,resposta,passos,chamadas_llm,tokens_entrada,tokens_saida,segundos
+1,fácil,Qual a rota de Pewter até Fuchsia às 8h?,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Pewter"", ""destino"": ""Fuchsia"", ""hora"": ""8""}",True,False,,False,"Rota: Pewter City → Mt. Moon → Cerulean City → Saffron City → Vermillion City → Fuchsia City.
+Ordem das entregas: Fuchsia City.
+Tempo previsto: 561.7 min (318 km).
+Comparação: a rota mais curta tem 312 km e levaria 570.8 min; economia de 9.1 min.
+Observações: A rota mais longa inclui algumas paradas, enquanto a rota mais curta segue diretamente de Pewter para Fuchsia sem paradas.","Rota: Pewter City → Mt. Moon → Cerulean City → Saffron City → Vermillion City → Fuchsia City.
+Ordem das entregas: Fuchsia City.
+Tempo previsto: 561.7 min (318 km).
+Comparação: a rota mais curta tem 312 km e levaria 570.8 min; economia de 9.1 min.
+Observações: A rota mais longa inclui algumas paradas, enquanto a rota mais curta segue diretamente de Pewter para Fuchsia sem paradas.",2,2,3567,167,48.219
+2,fácil,Preciso ir de Goldenrod City para Ecruteak City às 14h.,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Goldenrod"", ""destino"": ""Ecruteak"", ""hora"": ""14""}",True,False,,False,"Rota: Goldenrod City → National Park → Ecruteak City.
+Ordem das entregas: Ecruteak City.
+Tempo previsto: 103.2 min (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 103.2 min; economia de 0.0 min.
+Observações: A rota escolhida foi a mais rápida possível, considerando todas as opções.","Rota: Goldenrod City → National Park → Ecruteak City.
+Ordem das entregas: Ecruteak City.
+Tempo previsto: 103.2 min (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 103.2 min; economia de 0.0 min.
+Observações: A rota escolhida foi a mais rápida possível, considerando todas as opções.",2,2,3541,143,38.015
+3,horário,"Saindo agora de Cerulean, como chego em Vermillion?",buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Cerulean"", ""destino"": ""Vermillion""}",True,False,,False,"A rota mais rápida para você chegar em Vermillion City partir de Cerulean City é:
+
+1. Cerulean City → Saffron City → Vermillion City
+
+O tempo estimado para essa rota é de aproximadamente **108 minutos** (1.8 horas). A distância total é de **140 km**, e ela economiza **0 minutos** em relação ao trecho mais curto possível.
+
+Observações adicionais: Esta rota minimiza o tempo de viagem, mas pode variar dependendo dos condutores e condições climáticas.","A rota mais rápida para você chegar em Vermillion City partir de Cerulean City é:
+
+1. Cerulean City → Saffron City → Vermillion City
+
+O tempo estimado para essa rota é de aproximadamente **108 minutos** (1.8 horas). A distância total é de **140 km**, e ela economiza **0 minutos** em relação ao trecho mais curto possível.
+
+Observações adicionais: Esta rota minimiza o tempo de viagem, mas pode variar dependendo dos condutores e condições climáticas.",2,2,3536,155,39.82
+4,horário,Rota de Viridian até Pallet.,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Viridian"", ""destino"": ""Pallet""}",True,False,,False,"Rota: Viridian City → Pallet Town.
+Ordem das entregas: Pallet Town.
+Tempo previsto: 88 minutos (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 88 minutos; economia de 0 minutos.
+Observações: A rota escolhida foi a mais rápida possível, considerando todas as condições.","Rota: Viridian City → Pallet Town.
+Ordem das entregas: Pallet Town.
+Tempo previsto: 88 minutos (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 88 minutos; economia de 0 minutos.
+Observações: A rota escolhida foi a mais rápida possível, considerando todas as condições.",2,2,3498,118,32.447
+5,várias paradas,Saio de Pallet às 18h e preciso entregar em Celadon e Lavender.,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Pallet"", ""paradas"": [""Celadon"", ""Lavender""], ""hora"": ""18h""}",True,False,,False,"Rota: Pallet Town → Cinnabar Island → Seafoam Islands → Fuchsia City → Celadon City → Saffron City → Lavender Town.
+Ordem das entregas: Celadon City, Lavender Town.
+Tempo previsto: 684.3 min (344 km).
+Comparação: a rota mais curta tem 344 km e levaria 684.3 min; economia de 0.0 min.
+Observações: A rota escolhida foi a menos longa possível, mas consideramos todas as opções disponíveis.","Rota: Pallet Town → Cinnabar Island → Seafoam Islands → Fuchsia City → Celadon City → Saffron City → Lavender Town.
+Ordem das entregas: Celadon City, Lavender Town.
+Tempo previsto: 684.3 min (344 km).
+Comparação: a rota mais curta tem 344 km e levaria 684.3 min; economia de 0.0 min.
+Observações: A rota escolhida foi a menos longa possível, mas consideramos todas as opções disponíveis.",2,2,3677,175,41.3
+6,várias paradas,"Saindo de Goldenrod às 7h30, entrego em Azalea, Olivine e Ecruteak e depois volto para Goldenrod.",buscar_rota,buscar_rota,True,False,False,False,False,"retornar_origem: esperado True, obtido False","{""origem"": ""Goldenrod"", ""paradas"": [""Azalea"", ""Olivine"", ""Ecruteak""], ""hora"": ""7h30""}",True,False,,False,"Rota: Goldenrod City → Ilex Forest → Azalea Town → Ilex Forest → Goldenrod City → National Park → Ecruteak City → Olivine City.
+Ordem das entregas: Azalea Town, Ecruteak City, Olivine City.
+Tempo previsto: 590.8 minutos (36 km/h).
+Comparação: a rota mais curta tem 350 km e levaria 590.8 minutos; economia de 0.0 minutos.
+Observações: A rota escolhida foi a mais curta possível, mas consideramos todas as opções disponíveis.","Rota: Goldenrod City → Ilex Forest → Azalea Town → Ilex Forest → Goldenrod City → National Park → Ecruteak City → Olivine City.
+Ordem das entregas: Azalea Town, Ecruteak City, Olivine City.
+Tempo previsto: 590.8 minutos (36 km/h).
+Comparação: a rota mais curta tem 350 km e levaria 590.8 minutos; economia de 0.0 minutos.
+Observações: A rota escolhida foi a mais curta possível, mas consideramos todas as opções disponíveis.",2,2,3756,190,47.781
+7,restrição,Teve um acidente entre Saffron e Vermillion. Qual a rota de Pewter até Fuchsia às 18h?,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Pewter"", ""destino"": ""Fuchsia"", ""hora"": ""18"", ""acidentes"": [[""Saffron"", ""Vermillion""]], ""retornar_origem"": false}",True,True,número 0.9 não veio das ferramentas,True,"Rota: Pewter City → Mt. Moon → Cerulean City → Saffron City → Celadon City → Fuchsia City.
+Ordem das entregas: Fuchsia City.
+Tempo previsto: 635 minutos (10 horas e 35 minutos).
+Comparação: a rota mais curta tem 312 km e levaria 634.7 minutos; economia de 0.9 minutos.
+Observações: Não há restrições adicionais.",Rota saindo às 18h00: Pewter City → Mt. Moon → Cerulean City → Saffron City → Celadon City → Fuchsia City. Tempo previsto: 635 min (312 km). É também a rota mais curta em distância.,2,2,3646,172,47.782
+8,restrição,"Leve 3 Poções de Goldenrod até Ecruteak agora, evitando Violet.",buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Goldenrod"", ""destino"": ""Ecruteak"", ""hora"": ""agora"", ""evitar"": [""Violet""], ""produto"": ""Poções""}",True,False,,False,"Rota: Goldenrod City → National Park → Ecruteak City.
+Ordem das entregas: Ecruteak City.
+Tempo previsto: 87.7 min (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 87.7 min; economia de 0.0 min.
+Observações: Não há restrições adicionais.","Rota: Goldenrod City → National Park → Ecruteak City.
+Ordem das entregas: Ecruteak City.
+Tempo previsto: 87.7 min (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 87.7 min; economia de 0.0 min.
+Observações: Não há restrições adicionais.",2,2,3583,145,36.178
+9,restrição,A estrada entre Celadon e Fuchsia está interditada. Como vou de Celadon até Fuchsia às 10h?,buscar_rota,buscar_rota,True,False,False,False,False,"bloqueios: esperado {('Celadon City', 'Fuchsia City')}, obtido set()","{""origem"": ""Celadon"", ""destino"": ""Fuchsia"", ""hora"": ""10""}",True,False,,False,"Rota: Celadon City → Fuchsia City.
+Ordem das entregas: Fuchsia City.
+Tempo previsto: 182.5 min (110 km).
+Comparação: a rota mais curta tem 110 km e levaria 182.5 min; economia de 0.0 min.
+Observações: A rota escolhida foi a mais curta possível, considerando todas as restrições.","Rota: Celadon City → Fuchsia City.
+Ordem das entregas: Fuchsia City.
+Tempo previsto: 182.5 min (110 km).
+Comparação: a rota mais curta tem 110 km e levaria 182.5 min; economia de 0.0 min.
+Observações: A rota escolhida foi a mais curta possível, considerando todas as restrições.",2,2,3553,140,38.261
+10,difícil,rota de vermilion pra lavender às 6 da tarde,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Vermilion"", ""destino"": ""Lavender"", ""hora"": ""18""}",True,False,,False,"Rota: Vermillion City → Saffron City → Lavender Town.
+Ordem das entregas: Lavender Town.
+Tempo previsto: 215.7 min (135 km).
+Comparação: a rota mais curta tem 135 km e levaria 332.7 min; economia de 117.0 min.
+Observações: 'Vermilion' interpretado como 'Vermillion City'.","Rota: Vermillion City → Saffron City → Lavender Town.
+Ordem das entregas: Lavender Town.
+Tempo previsto: 215.7 min (135 km).
+Comparação: a rota mais curta tem 135 km e levaria 332.7 min; economia de 117.0 min.
+Observações: 'Vermilion' interpretado como 'Vermillion City'.",2,2,3549,140,47.543
+11,difícil,Quero mandar um pacote pra Cerulian saindo de Saffon ao meio-dia.,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Saffron"", ""destino"": ""Cerulean"", ""hora"": ""12""}",True,False,,False,"Rota: Saffron City → Cerulean City.
+Ordem das entregas: Cerulean City.
+Tempo previsto: 81 minutos (1 hora e 21 minutos).
+Comparação: a rota mais curta tem 105 km e levaria 81 minutos; economia de 0 minutos.
+Observações: A rota escolhida foi a mais rápida possível, considerando todas as opções disponíveis.","Rota: Saffron City → Cerulean City.
+Ordem das entregas: Cerulean City.
+Tempo previsto: 81 minutos (1 hora e 21 minutos).
+Comparação: a rota mais curta tem 105 km e levaria 81 minutos; economia de 0 minutos.
+Observações: A rota escolhida foi a mais rápida possível, considerando todas as opções disponíveis.",2,2,3541,137,47.305
+12,difícil,How do I get from Pallet Town to Viridian City at 9am?,buscar_rota,buscar_rota,True,True,True,True,True,,"{""origem"": ""Pallet Town"", ""destino"": ""Viridian City"", ""hora"": ""9""}",True,False,,False,"Rota: Pallet Town → Viridian City.
+Ordem das entregas: Viridian City.
+Tempo previsto: 123 minutos (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 123 minutos; economia de 0 minutos.
+Observações: The route is already the shortest route.","Rota: Pallet Town → Viridian City.
+Ordem das entregas: Viridian City.
+Tempo previsto: 123 minutos (65 km).
+Comparação: a rota mais curta tem 65 km e levaria 123 minutos; economia de 0 minutos.
+Observações: The route is already the shortest route.",2,2,3521,118,41.632
+13,outras ferramentas,Quanto tempo leva a estrada entre Ice Path e Mahogany às 18h?,estimar_tempo_trecho,estimar_tempo_trecho,True,False,,True,False,"hora: esperado 18.0, obtido 'agora'","{""origem"": ""Ice Path"", ""destino"": ""Mahogany""}",True,True,número 5 não veio das ferramentas,True,A estrada entre Ice Path e Mahogany Town leva aproximadamente 37 minutos (5 horas e 37 minutos). A distância é de 22 km. Esta via está rodovia e possui 1 lombada e 1 semáforo.,"{""ok"": true, ""de"": ""Ice Path"", ""para"": ""Mahogany Town"", ""hora"": 0.38, ""acidente"": false, ""tempo_previsto_min"": 36.8, ""distancia_km"": 22, ""tipo_via"": ""terra"", ""lombadas"": 1, ""semaforos"": 1}",2,2,3473,93,28.135
+14,outras ferramentas,Quais lugares ficam ligados diretamente a Saffron?,listar_vizinhas,listar_vizinhas,True,True,,True,True,,"{""cidade"": ""Saffron""}",True,False,,False,"As cidades vizinhas a Saffron City são:
+
+- Celadon City: 9 km
+- Cerulean City: 105 km
+- Lavender Town: 105 km
+- Vermillion City: 35 km","As cidades vizinhas a Saffron City são:
+
+- Celadon City: 9 km
+- Cerulean City: 105 km
+- Lavender Town: 105 km
+- Vermillion City: 35 km",2,2,3463,81,27.021
+15,fora do mapa,Me leva de Pallet para São Paulo às 10h.,buscar_rota,buscar_rota,True,True,,True,True,,"{""origem"": ""Pallet"", ""destino"": ""São Paulo"", ""hora"": ""10""}",False,False,,False,"Desculpe, mas não consigo encontrar São Paulo no mapa. Você poderia me dizer qual cidade você quer ir?","Desculpe, mas não consigo encontrar São Paulo no mapa. Você poderia me dizer qual cidade você quer ir?",2,2,3433,66,23.163
+16,fora do mapa,Rota de New Bark até Hogwarts agora.,buscar_rota,buscar_rota,True,True,,True,True,,"{""origem"": ""New Bark"", ""destino"": ""Hogwarts""}",False,False,,False,"Desculpe, mas Hogwarts não está na lista dos lugares válidos. Por favor, tente novamente usando um nome válido.","Desculpe, mas Hogwarts não está na lista dos lugares válidos. Por favor, tente novamente usando um nome válido.",2,2,3392,59,29.785
+17,sem ferramenta,Bom dia! Tudo bem?,nenhuma,nenhuma,True,True,,True,True,,,,False,,False,"Tudo ótimo! Estou aqui para ajudar com suas entregas Pokémon. Por favor, me diga onde você precisa começar e onde quer chegar.","Tudo ótimo! Estou aqui para ajudar com suas entregas Pokémon. Por favor, me diga onde você precisa começar e onde quer chegar.",1,1,1658,35,12.333
+18,sem ferramenta,Me passa uma receita de bolo de cenoura?,nenhuma,nenhuma,True,True,,True,True,,,,False,,False,"Desculpe, eu só planejo rotas de entrega em Kanto e Johto. Diga a origem, os destinos e o horário que eu calculo a melhor rota.","Desculpe, eu só planejo rotas de entrega em Kanto e Johto. Diga a origem, os destinos e o horário que eu calculo a melhor rota.",1,1,1664,43,14.429
+19,sem ferramenta,Quem ganhou a Copa do Mundo de 2002?,nenhuma,nenhuma,True,True,,True,True,,,,False,,False,"Desculpe, eu só planejo rotas de entrega em Kanto e Johto. Diga a origem, os destinos e o horário que eu calculo a melhor rota.","Desculpe, eu só planejo rotas de entrega em Kanto e Johto. Diga a origem, os destinos e o horário que eu calculo a melhor rota.",1,1,1665,43,12.813
+20,ambíguo,Quero fazer uma entrega em Celadon.,nenhuma,nenhuma,True,True,,True,True,,,,False,,False,Ok. Você quer que eu faça a entrega diretamente para Celadon?,Ok. Você quer que eu faça a entrega diretamente para Celadon?,1,1,1660,18,10.225

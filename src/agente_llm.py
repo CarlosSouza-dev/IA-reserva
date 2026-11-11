@@ -190,6 +190,16 @@ def explicar_resultado(resultado):
         if resultado.get("sugestoes"):
             texto += " Você quis dizer: " + ", ".join(resultado["sugestoes"]) + "?"
         return texto
+    if "tempo_previsto_min" in resultado and "de" in resultado:  # estimar_tempo_trecho
+        texto = (f"A estrada {resultado['de']} → {resultado['para']} "
+                 f"({resultado['distancia_km']} km, {resultado['tipo_via']}) leva cerca de "
+                 f"{resultado['tempo_previsto_min']:.0f} min saindo às {_hora_texto(resultado['hora'])}")
+        return texto + (", considerando o acidente." if resultado.get("acidente") else ".")
+    if "vizinhas" in resultado:  # listar_vizinhas
+        return (f"Ligações diretas de {resultado['cidade']}: "
+                + ", ".join(f"{v['local']} ({v['distancia_km']} km)" for v in resultado["vizinhas"]) + ".")
+    if "cidades" in resultado:  # listar_cidades
+        return "Cidades do mapa: " + ", ".join(resultado["cidades"]) + "."
     if "rota" not in resultado:
         return json.dumps(resultado, ensure_ascii=False)
     partes = []
