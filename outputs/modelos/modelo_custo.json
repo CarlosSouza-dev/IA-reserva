@@ -1,0 +1,74 @@
+{
+  "modelo": "Floresta Aleatória",
+  "colunas_entrada": [
+    "distancia",
+    "lombadas",
+    "semaforos",
+    "acidente",
+    "hora",
+    "tipo_via"
+  ],
+  "alvo": "tempo_min",
+  "validacao_cruzada": [
+    {
+      "Modelo": "Floresta Aleatória",
+      "MAE estradas conhecidas (min)": 8.445,
+      "MAE estradas conhecidas desvio": 0.101,
+      "RMSE estradas conhecidas (min)": 13.508,
+      "R² estradas conhecidas": 0.971,
+      "MAE estradas novas (min)": 20.586,
+      "MAE estradas novas desvio": 4.553,
+      "RMSE estradas novas (min)": 32.442,
+      "R² estradas novas": 0.6917,
+      "Tempo de treino (s)": 0.192
+    },
+    {
+      "Modelo": "Regressão Ridge",
+      "MAE estradas conhecidas (min)": 20.197,
+      "MAE estradas conhecidas desvio": 1.022,
+      "RMSE estradas conhecidas (min)": 28.333,
+      "R² estradas conhecidas": 0.8722,
+      "MAE estradas novas (min)": 20.997,
+      "MAE estradas novas desvio": 2.232,
+      "RMSE estradas novas (min)": 29.855,
+      "R² estradas novas": 0.7711,
+      "Tempo de treino (s)": 0.007
+    },
+    {
+      "Modelo": "Árvore de Decisão",
+      "MAE estradas conhecidas (min)": 9.929,
+      "MAE estradas conhecidas desvio": 0.386,
+      "RMSE estradas conhecidas (min)": 15.953,
+      "R² estradas conhecidas": 0.9595,
+      "MAE estradas novas (min)": 24.205,
+      "MAE estradas novas desvio": 5.699,
+      "RMSE estradas novas (min)": 38.004,
+      "R² estradas novas": 0.6355,
+      "Tempo de treino (s)": 0.014
+    },
+    {
+      "Modelo": "k-NN (k=10)",
+      "MAE estradas conhecidas (min)": 10.16,
+      "MAE estradas conhecidas desvio": 0.433,
+      "RMSE estradas conhecidas (min)": 16.243,
+      "R² estradas conhecidas": 0.958,
+      "MAE estradas novas (min)": 30.976,
+      "MAE estradas novas desvio": 4.058,
+      "RMSE estradas novas (min)": 43.955,
+      "R² estradas novas": 0.5619,
+      "Tempo de treino (s)": 0.012
+    },
+    {
+      "Modelo": "Baseline (média)",
+      "MAE estradas conhecidas (min)": 61.313,
+      "MAE estradas conhecidas desvio": 1.34,
+      "RMSE estradas conhecidas (min)": 79.398,
+      "R² estradas conhecidas": -0.001,
+      "MAE estradas novas (min)": 61.518,
+      "MAE estradas novas desvio": 15.17,
+      "RMSE estradas novas (min)": 77.041,
+      "R² estradas novas": -0.0621,
+      "Tempo de treino (s)": 0.01
+    }
+  ]
+}

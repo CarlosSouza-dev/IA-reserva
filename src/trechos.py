@@ -153,19 +153,30 @@ def montar_grafo_tempo(mapa, hora, acidentes=(), prever=None):
     hora      : horário da viagem (decimal, 0-24)
     acidentes : pares (a, b) com acidente; a ordem não importa
     prever    : opcional, `prever(trecho, hora, acidente) -> minutos`. Aqui
-                entra o modelo aprendido; se None, usa o simulador.
+                entra o modelo aprendido; se None, usa o simulador. Se o objeto
+                tiver o método `prever_lote(trechos, hora, acidentes)` (ex.:
+                `modelo_custo.PreditorTempo`), todos os trechos são previstos
+                numa única chamada ao modelo.
+
+    Cada estrada é estimada UMA vez e o mesmo custo vale nos dois sentidos.
     """
     ocorrencias = {chave_trecho(a, b) for a, b in acidentes}
-    estimar = prever or tempo_trecho
-    grafo = {}
-    for a, vizinhos in mapa.items():
-        grafo[a] = {}
-        for b in vizinhos:
-            chave = chave_trecho(a, b)
-            if chave not in TRECHOS:
-                raise KeyError(f"Trecho {a}-{b} sem características em TRECHOS")
-            grafo[a][b] = round(estimar(TRECHOS[chave], hora, chave in ocorrencias), 4)
-    return grafo
+    chaves = sorted({chave_trecho(a, b) for a, vizinhos in mapa.items() for b in vizinhos})
+    for a, b in chaves:
+        if (a, b) not in TRECHOS:
+            raise KeyError(f"Trecho {a}-{b} sem características em TRECHOS")
+
+    trechos = [TRECHOS[c] for c in chaves]
+    com_acidente = [c in ocorrencias for c in chaves]
+    if hasattr(prever, "prever_lote"):
+        tempos = prever.prever_lote(trechos, hora, com_acidente)
+    else:
+        estimar = prever or tempo_trecho
+        tempos = [estimar(t, hora, acid) for t, acid in zip(trechos, com_acidente)]
+
+    custo = {c: round(float(t), 4) for c, t in zip(chaves, tempos)}
+    return {a: {b: custo[chave_trecho(a, b)] for b in vizinhos}
+            for a, vizinhos in mapa.items()}
 
 
 # =====================================================================
